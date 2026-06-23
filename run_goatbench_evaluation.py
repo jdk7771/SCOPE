@@ -161,6 +161,8 @@ def main(cfg, start_ratio=0.0, end_ratio=1.0, split=1):
 
             # Initialize potential graph for this episode with correct bounds format
             logging.info(f"TSDF bounds shape: {tsdf_bnds.shape}, bounds: {tsdf_bnds}")
+            # 每个格点维护一个 potential score（势能值），表示该区域还有多少探索价值
+            #     前沿发现后向周围格点扩散势能，随时间衰减（decay_factor=0.95）
             potential_graph = PotentialGraph(
                 vol_bounds=tsdf_bnds,
                 voxel_size=cfg.tsdf_grid_size,
@@ -183,7 +185,7 @@ def main(cfg, start_ratio=0.0, end_ratio=1.0, split=1):
             global_step = -1
             for subtask_idx, (goal_type, subtask_goal) in enumerate(
                 zip(all_subtask_goal_types, all_subtask_goals)
-            ):
+                ):
                 subtask_id = f"{scene_id}_{episode_id}_{subtask_idx}"
                 logging.info(
                     f"\nScene {scene_id} Episode {episode_id} Subtask {subtask_idx + 1}/{len(all_subtask_goals)}"
